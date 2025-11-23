@@ -1,0 +1,350 @@
+/* VARIABLES & RESET */
+:root {
+    --primary-color: #E85D46;  /* Warm Coral Red */
+    --secondary-color: #C6AD67; /* Soft Gold */
+    --text-dark: #333333;
+    --bg-light: #f9f9f9;
+    --white: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: var(--text-dark);
+    background-color: var(--bg-light);
+}
+
+/* HEADER & NAVIGATION */
+header {
+    background: var(--white);
+    border-bottom: 4px solid var(--secondary-color);
+    padding: 0.8rem 0; /* Slight adjustment for logo size */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: sticky; /* Keeps header at top when scrolling */
+    top: 0;
+    z-index: 1000;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Logo Styling  */
+.logo-container {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    gap: 12px; /* Space between image and text */
+}
+
+.logo-img {
+    height: 80px; /* Adjust based on your actual logo file size */
+    width: auto;
+}
+
+.logo-text {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: var(--text-dark);
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+}
+
+.logo-text span {
+    color: var(--primary-color);
+}
+
+.logo-sub {
+    font-size: 0.85rem;
+    color: var(--secondary-color);
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    margin-top: 2px;
+}
+
+/* Navigation*/
+nav ul {
+    list-style: none;
+    display: flex;
+}
+
+nav ul li {
+    margin-left: 20px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: var(--text-dark);
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+nav ul li a:hover, nav ul li a.active {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--secondary-color);
+}
+
+/* BUTTONS & ANIMATIONS */
+.btn {
+    display: inline-block;
+    padding: 10px 25px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: transform 0.2s;
+    cursor: pointer;
+    border: none;
+    font-weight: 600;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.btn:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+/*  Dancing Button Animation */
+@keyframes pulse-dance {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(232, 93, 70, 0.7); }
+    50% { transform: scale(1.05); box-shadow: 0 0 20px 10px rgba(232, 93, 70, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(232, 93, 70, 0); }
+}
+
+.btn-dance {
+    animation: pulse-dance 2s infinite;
+}
+
+/* HERO SECTIONS */
+.hero {
+    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('../img/hero-bg.png');
+    background-color: #333; 
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 120px 20px;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.hero p {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+    color: var(--secondary-color);
+}
+
+/* ABOUT PAGE (SPECIAL STYLES)*/
+/* This class goes on the BODY tag of about.html */
+.about-bg {
+    /* restaurant background image */
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; /* Creates the scroll/parallax effect */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Centers the content on the About page */
+.about-content-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 20px;
+}
+
+/* The floating white box */
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 50px;
+    border-radius: 15px;
+    max-width: 900px;
+    width: 100%;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+    border-top: 6px solid var(--primary-color);
+}
+
+/* GENERAL CONTENT SECTIONS*/
+.section {
+    padding: 60px 0;
+    max-width: 900px;
+    margin: 0 auto;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.section h2 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 2rem;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.card {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-top: 5px solid var(--secondary-color);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* FORMS*/
+form {
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.form-group input, .form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.form-group input:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+}
+
+/* SERVICES PAGE SPECIFIC STYLES */
+
+/* A more premium looking card for the main product */
+.services-hero-card {
+    background: #fff;
+    /* A diagonal gradient for a modern feel */
+    background: linear-gradient(135deg, #ffffff 70%, #fdfdfd 100%);
+    border-top: none; /* Remove standard top border */
+    position: relative;
+    overflow: hidden; /* Ensures decorative elements stay inside */
+    max-width: 800px;
+    margin: auto;
+    padding: 50px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15); /* Deeper, softer shadow */
+    border-radius: 20px; /* Rounder corners */
+}
+
+/* Decorative Gold Element at top right */
+.services-hero-card::after {
+    content: '';
+    position: absolute;
+    top: -80px;
+    right: -80px;
+    width: 200px;
+    height: 200px;
+    background: var(--secondary-color);
+    opacity: 0.15;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+/* Decorative Coral Element at bottom left */
+.services-hero-card::before {
+    content: '';
+    position: absolute;
+    bottom: -100px;
+    left: -100px;
+    width: 250px;
+    height: 250px;
+    background: var(--primary-color);
+    opacity: 0.05;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+/* List Styling (Replacing green ticks with Gold) */
+.styled-list {
+    list-style: none;
+    text-align: left;
+    display: inline-block; /* Centers the block of text */
+    margin: 30px 0;
+}
+
+.styled-list li {
+    margin-bottom: 18px;
+    font-size: 1.15rem;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+}
+
+/* The gold icon before list items */
+.styled-list li::before {
+    content: '✦'; /* A gold sparkle/star character */
+    color: var(--secondary-color);
+    font-size: 1.8rem;
+    margin-right: 15px;
+    line-height: 0;
+    text-shadow: 0 0 10px rgba(198, 173, 103, 0.4);
+}
+
+/* CONTINUOUS BOUNCE ANIMATION */
+@keyframes vigorous-bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-15px); }
+    60% { transform: translateY(-7px); }
+}
+
+.btn-bounce-continuous {
+    animation: vigorous-bounce 2s infinite ease-in-out;
+    box-shadow: 0 10px 25px rgba(232, 93, 70, 0.5); /* Strong glow */
+    font-size: 1.2rem; /* Slightly larger text */
+    padding: 15px 40px; /* Larger button */
+}
+
+/* Ensure content stays above decorative backgrounds */
+.services-hero-card > * {
+    position: relative;
+    z-index: 2;
+}
