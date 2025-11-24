@@ -1,114 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Smart Restaurant — Order Tracking</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary: #FF6F61; /* Warm coral red */
-      --secondary: #D4AF37; /* Soft gold */
-      --light-bg: #FFF5F0;
-      --card-bg: #ffffff;
-      --status-inactive: #ccc;
-      --status-active: var(--primary);
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order | DineEase</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #E85D46; --secondary: #C6AD67; --dark: #333; --light: #FFF5F0; }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body { font-family: 'Roboto', sans-serif; background:var(--light-bg); color:#333; margin:0; padding:0; }
-    .header { display:flex; justify-content:space-between; align-items:center; padding:20px 40px; background:var(--card-bg); box-shadow:0 3px 10px rgba(0,0,0,0.1); position:sticky; top:0; z-index:1000;}
-    .brand { font-family:'Playfair Display', serif; font-size:1.8rem; color:var(--secondary); }
-    .nav a button, .nav button { margin-left:15px; padding:8px 14px; border:none; background:var(--primary); color:#fff; border-radius:6px; cursor:pointer; font-weight:500; transition:0.3s; }
-    .nav a button:hover, .nav button:hover { background:var(--secondary); }
-    h1 { text-align:center; font-family:'Playfair Display', serif; color:var(--primary); margin:30px 0; }
-    .tracking-container { max-width:800px; margin:0 auto 40px; padding:0 20px; }
-    .order-card { background:var(--card-bg); padding:20px; margin-bottom:20px; border-radius:12px; box-shadow:0 6px 15px rgba(0,0,0,0.1); }
-    .order-card h4 { margin-bottom:10px; font-family:'Playfair Display', serif; color:var(--primary);}
-    .order-card ul { list-style:none; padding:0; margin:0 0 10px; }
-    .order-card ul li { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px dashed #ccc; }
-    .order-card strong { display:block; text-align:right; margin-top:10px; font-size:1.1rem; color:#222; }
-    .order-status { display:flex; justify-content:flex-start; margin-top:15px; gap:10px; flex-wrap:wrap; }
-    .status-step { padding:8px 14px; border-radius:20px; font-weight:500; font-size:0.95rem; color:#fff; background:var(--status-inactive); transition:0.3s; }
-    .status-step.active { background:var(--status-active); }
-    .no-orders { text-align:center; font-size:1.2rem; margin-top:50px; color:#555; }
-  </style>
+        body { font-family: 'Poppins', sans-serif; background: var(--light); color: var(--dark); padding-top: 80px; }
+        
+        /* HEADER */
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 15px 5%; 
+            background: rgba(255,255,255,0.95); 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            z-index: 1000; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+        }
+        
+        .brand { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--secondary); }
+        
+        .nav-btn { 
+            padding: 10px 20px; 
+            border: 1px solid #eee; 
+            background: white; 
+            font-family: 'Poppins', sans-serif; 
+            font-weight: 500; 
+            cursor: pointer; 
+            color: var(--dark); 
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+        .nav-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .container { max-width: 600px; margin: 40px auto; padding: 20px; text-align: center; }
+        
+        .status-card { background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        
+        .order-id { font-size: 1.2rem; color: #777; margin-bottom: 20px; }
+        .timer { font-size: 3rem; font-weight: 700; color: var(--primary); margin: 20px 0; font-family: 'Playfair Display', serif; }
+        
+        /* TIMELINE */
+        .timeline { position: relative; margin-top: 40px; padding-left: 20px; text-align: left; border-left: 3px solid #eee; margin-left: 20px; }
+        
+        .step { position: relative; margin-bottom: 40px; padding-left: 20px; opacity: 0.5; transition: 0.3s; }
+        .step.active { opacity: 1; }
+        .step::before { content: ''; position: absolute; left: -26px; top: 5px; width: 15px; height: 15px; border-radius: 50%; background: #eee; border: 3px solid white; box-shadow: 0 0 0 2px #eee; transition: 0.3s; }
+        
+        .step.active::before { background: var(--primary); box-shadow: 0 0 0 2px var(--primary); }
+        .step.completed::before { background: var(--secondary); box-shadow: 0 0 0 2px var(--secondary); }
+        
+        .step h4 { margin: 0; font-size: 1.1rem; color: var(--dark); }
+        .step p { margin: 5px 0 0; font-size: 0.9rem; color: #777; }
+
+        .msg-box { background: #e8f5e9; color: #2e7d32; padding: 15px; border-radius: 10px; margin-top: 20px; display: none; }
+    </style>
 </head>
 <body>
 
-  <div class="header">
-    <div class="brand">Smart Restaurant</div>
-    <div class="nav">
-      <a href="menu.html"><button>Menu</button></a>
-      <a href="checkout.html"><button>Checkout</button></a>
-      <button id="logoutBtn">Logout</button>
+    <div class="header">
+        <div class="brand">Order Tracking</div>
+        <a href="menu.html"><button class="nav-btn">Back to Menu</button></a>
     </div>
-  </div>
 
-  <h1>Track Your Orders</h1>
-  <div class="tracking-container" id="trackingContainer"></div>
+    <div class="container">
+        <div class="status-card">
+            <h2>Order Status</h2>
+            <div class="order-id">Order #<span id="orderIdDisplay">---</span></div>
+            
+            <!-- DYNAMIC TIME DISPLAY -->
+            <div class="timer" id="timerDisplay">--:--</div>
+            <p id="statusLabel">Waiting for confirmation...</p>
 
-  <script>
-    const currentUser = localStorage.getItem("currentUser");
-    if(!currentUser){ alert("Please login!"); window.location.href="login.html"; }
+            <div class="timeline">
+                <div class="step active" id="step-pending">
+                    <h4>Order Received</h4>
+                    <p>Your order has been sent to the kitchen.</p>
+                </div>
+                <div class="step" id="step-preparing">
+                    <h4>Preparing</h4>
+                    <p>Our chefs are working on your meal.</p>
+                </div>
+                <div class="step" id="step-ready">
+                    <h4>Ready to Serve</h4>
+                    <p>Your food is being plated.</p>
+                </div>
+                <div class="step" id="step-served">
+                    <h4>Served</h4>
+                    <p>Enjoy your meal!</p>
+                </div>
+            </div>
 
-    const statusSteps = ["pending", "bar", "chef", "ready", "delivered"];
+            <div class="msg-box" id="successMsg">
+                Your order is complete! <br> You earned <strong>10 Loyalty Points</strong>.
+            </div>
+        </div>
+    </div>
 
-    function renderOrders() {
-      const orders = JSON.parse(localStorage.getItem(currentUser+"_cart_history") || "[]");
-      const container = document.getElementById('trackingContainer');
-      container.innerHTML = '';
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = parseInt(urlParams.get('orderId'));
+        
+        document.getElementById('orderIdDisplay').innerText = orderId || 'Unknown';
 
-      if(orders.length === 0) {
-        container.innerHTML = '<p class="no-orders">No current orders.</p>';
-        return;
-      }
-
-      orders.forEach((order, idx) => {
-        const card = document.createElement('div');
-        card.className = 'order-card';
-
-        // Items list
-        let html = `<h4>Order ${idx+1}</h4><ul>`;
-        order.forEach(item=>{
-          html += `<li>${item.name} x ${item.qty} <span>Ksh ${item.qty*item.price}</span></li>`;
-        });
-        html += `</ul><strong>Total: Ksh ${order.reduce((sum,i)=>sum+i.qty*i.price,0)}</strong>`;
-
-        // Status tracker
-        html += '<div class="order-status">';
-        const currentStatusIndex = statusSteps.indexOf(order.status || "pending");
-        statusSteps.forEach((step, i)=>{
-          html += `<span class="status-step ${i <= currentStatusIndex ? 'active' : ''}">${step}</span>`;
-        });
-        html += '</div>';
-
-        card.innerHTML = html;
-        container.appendChild(card);
-      });
-    }
-
-    // Simulate status updates for demo purposes
-    function autoUpdateStatus() {
-      const orders = JSON.parse(localStorage.getItem(currentUser+"_cart_history") || "[]");
-      let changed = false;
-      orders.forEach(order => {
-        const currentIndex = statusSteps.indexOf(order.status || "pending");
-        if(currentIndex < statusSteps.length - 1) {
-          order.status = statusSteps[currentIndex + 1];
-          changed = true;
+        // Polling for status updates
+        function checkStatus() {
+            if(!orderId) return;
+            
+            const db = JSON.parse(localStorage.getItem('srms_data') || '{"orders":[]}');
+            const order = db.orders.find(o => o.id === orderId);
+            
+            if(order) {
+                updateTimeline(order);
+            } else {
+                document.getElementById('statusLabel').innerText = "Order not found";
+            }
         }
-      });
-      if(changed) localStorage.setItem(currentUser+"_cart_history", JSON.stringify(orders));
-    }
 
-    renderOrders();
-    setInterval(()=>{ autoUpdateStatus(); renderOrders(); }, 4000); // Update every 4s
+        function updateTimeline(order) {
+            // Determine overall status (Prioritizing active cooking)
+            let overall = 'pending';
+            const k = order.kitchenStatus;
+            const b = order.barStatus;
 
-    // Logout
-    document.getElementById("logoutBtn").onclick = ()=>{
-      localStorage.removeItem("currentUser");
-      window.location.href="login.html";
-    }
-  </script>
+            // Logic to determine current phase
+            if (k === 'served' || b === 'served') overall = 'served';
+            else if (k === 'ready' || b === 'ready') overall = 'ready';
+            else if (k === 'preparing' || b === 'preparing') overall = 'preparing';
+            else overall = 'pending';
+
+            // Update Timeline UI
+            const steps = ['pending', 'preparing', 'ready', 'served'];
+            let activeFound = false;
+
+            steps.forEach(step => {
+                const el = document.getElementById(`step-${step}`);
+                el.classList.remove('active', 'completed');
+                
+                if (step === overall) {
+                    el.classList.add('active');
+                    activeFound = true;
+                } else if (!activeFound) {
+                    el.classList.add('completed'); // Mark previous steps as done
+                }
+            });
+
+            // Update Time Display based on Status
+            const timer = document.getElementById('timerDisplay');
+            const label = document.getElementById('statusLabel');
+
+            if (overall === 'pending') {
+                timer.innerText = "...";
+                label.innerText = "Waiting for Kitchen/Bar...";
+                timer.style.color = "#777";
+            } 
+            else if (overall === 'preparing') {
+                timer.innerText = "~20 Mins";
+                label.innerText = "Chefs are preparing your order";
+                timer.style.color = "var(--primary)";
+            } 
+            else if (overall === 'ready') {
+                timer.innerText = "Arriving!";
+                label.innerText = "Waitstaff is bringing your order";
+                timer.style.color = "var(--secondary)";
+            } 
+            else if (overall === 'served') {
+                timer.innerText = "Done";
+                label.innerText = "Order Completed";
+                timer.style.color = "#2ecc71";
+                document.getElementById('successMsg').style.display = 'block';
+            }
+        }
+
+        // Check for updates every 2 seconds (Real-time feel)
+        setInterval(checkStatus, 2000);
+        checkStatus(); // Initial check
+    </script>
 </body>
 </html>

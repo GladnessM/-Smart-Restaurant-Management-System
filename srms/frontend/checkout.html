@@ -1,95 +1,232 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Checkout</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary: #FF6F61; /* warm coral red */
-      --secondary: #D4AF37; /* soft gold */
-      --light-bg: #FFF5F0;
-      --card-bg: #ffffff;
-    }
-    * { box-sizing:border-box; margin:0; padding:0; }
-    body { font-family:'Roboto', sans-serif; background:var(--light-bg); color:#333; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | DineEase</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #E85D46; --secondary: #C6AD67; --dark: #333; --light: #FFF5F0; --white: #ffffff; }
+        
+        /* FIXED: Added box-sizing to prevent elements from overflowing the screen */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* Header */
-    .header { display:flex; justify-content:space-between; align-items:center; padding:20px 40px; background:#fff; box-shadow:0 3px 10px rgba(0,0,0,0.1); position:sticky; top:0; z-index:1000;}
-    .brand { font-family:'Playfair Display', serif; font-size:1.8rem; color:var(--secondary);}
-    .nav button { margin-left:15px; padding:8px 14px; border:none; background:var(--primary); color:#fff; border-radius:6px; cursor:pointer; font-weight:500; transition:0.3s;}
-    .nav button:hover { background:var(--secondary); }
+        body { font-family: 'Poppins', sans-serif; background: var(--light); color: var(--dark); padding-top: 80px; }
+        
+        /* HEADER (Shared Style) */
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 15px 5%; /* This 5% padding will now stay inside the screen width */
+            background: rgba(255,255,255,0.95); 
+            backdrop-filter: blur(10px); 
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05); 
+            position: fixed; 
+            top: 0; 
+            left: 0; /* Ensure it starts from the very left */
+            width: 100%; 
+            z-index: 1000; 
+        }
+        
+        .brand { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--secondary); display: flex; align-items: center; gap: 10px; }
+        
+        /* Improved Button Style */
+        .nav-btn { 
+            padding: 10px 20px; 
+            border: 1px solid #eee; 
+            background: white; 
+            color: var(--dark); 
+            font-weight: 500; 
+            font-size: 0.95rem; 
+            cursor: pointer; 
+            font-family: 'Poppins', sans-serif; 
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+        .nav-btn:hover { 
+            border-color: var(--primary); 
+            color: var(--primary); 
+            transform: translateX(-2px); /* Subtle movement effect */
+        }
+        
+        .container { max-width: 800px; margin: 40px auto; padding: 20px; }
+        
+        .checkout-card { background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        
+        h2 { font-family: 'Playfair Display', serif; color: var(--primary); margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        
+        .order-summary { margin-bottom: 30px; }
+        .item-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f9f9f9; }
+        .item-name { font-weight: 500; color: var(--dark); }
+        .item-price { font-weight: 600; color: #777; }
+        
+        .total-row { display: flex; justify-content: space-between; font-size: 1.4rem; font-weight: 700; margin-top: 20px; padding-top: 20px; border-top: 2px solid var(--secondary); color: var(--dark); }
+        
+        .payment-section { margin-top: 30px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 1rem; }
+        
+        .btn-confirm { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.2rem; font-weight: 600; cursor: pointer; transition: 0.3s; margin-top: 20px; }
+        .btn-confirm:hover { background: #d64d38; box-shadow: 0 5px 15px rgba(232, 93, 70, 0.3); }
+        .btn-confirm:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; }
+        
+        .back-link { display: block; text-align: center; margin-top: 20px; color: #888; text-decoration: none; font-size: 0.9rem; }
+        
+        .table-info {
+            background: #fff8e1;
+            color: #f39c12;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border: 1px solid #ffe0b2;
+        }
 
-    /* Container */
-    .container { max-width:600px; margin:40px auto; padding:20px; background:var(--card-bg); border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,0.08);}
-    .receipt h2 { font-family:'Playfair Display', serif; margin-bottom:20px; color:var(--secondary);}
-    #items div { font-size:1rem; margin-bottom:6px; }
-    hr { border:none; border-top:1px solid #eee; margin:15px 0; }
-    .small.center { text-align:center; color:#777; font-size:0.9rem; margin:20px 0; }
-
-    /* Payment buttons */
-    .btn { flex:1; border:none; padding:12px; border-radius:8px; cursor:pointer; font-weight:600; transition:0.3s; color:#fff;}
-    .btn-cash { background:var(--primary); }
-    .btn-cash:hover { background:var(--secondary); }
-    .btn-mpesa { background:#116466; }
-    .btn-mpesa:hover { background:#1f8a8c; }
-
-    .payment-group { display:flex; gap:10px; margin-top:14px; }
-    .total-row { display:flex; justify-content:space-between; font-weight:bold; font-size:1.1rem; margin-top:10px; }
-  </style>
+        .empty-cart-msg {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-style: italic;
+        }
+    </style>
 </head>
 <body>
 
-  <div class="header">
-    <div class="brand">Smart Restaurant</div>
-    <div class="nav">
-      <a href="menu.html"><button>Back to Menu</button></a>
+    <div class="header">
+        <div class="brand"><i class="fas fa-utensils" style="color:var(--primary)"></i> Dine<span>Ease</span></div>
+        <div><a href="menu.html"><button class="nav-btn">Back to Menu</button></a></div>
     </div>
-  </div>
 
-  <div class="container">
-    <div class="receipt">
-      <h2>Checkout</h2>
-      <div id="items"></div>
-      <hr/>
-      <div class="total-row">
-        <span>Total</span>
-        <span id="total">Ksh 0</span>
-      </div>
-      <div class="payment-group">
-        <button id="payCash" class="btn btn-cash">Pay Cash</button>
-        <button id="payMpesa" class="btn btn-mpesa">Simulate M-Pesa</button>
-      </div>
+    <div class="container">
+        <div class="checkout-card">
+            <h2>Finalize Order</h2>
+            
+            <!-- Display Detected Table -->
+            <div id="tableDisplay" class="table-info">
+                Detecting Table...
+            </div>
+            
+            <div class="order-summary" id="summaryList">
+                <!-- Items inserted by JS -->
+            </div>
+            
+            <div class="total-row">
+                <span>Total Amount</span>
+                <span id="finalTotal">Ksh 0</span>
+            </div>
+
+            <div class="payment-section">
+                <h3>Payment Details</h3>
+                
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <select id="paymentMethod">
+                        <option value="mpesa">M-Pesa</option>
+                        <option value="cash">Cash</option>
+                        <option value="card">Credit Card</option>
+                    </select>
+                </div>
+                
+                <button class="btn-confirm" id="confirmBtn" onclick="confirmOrder()">Confirm & Pay</button>
+                <a href="menu.html?openCart=true" class="back-link">Modify Order</a>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <script src="app.js"></script>
-  <script>
-    const list = getCart();
-    const itemsEl = document.getElementById('items'), totalEl = document.getElementById('total');
-    let total=0;
-    if(list.length===0) itemsEl.innerHTML='<div class="small center">Your cart is empty</div>';
-    list.forEach(i=>{
-      const div = document.createElement('div'); div.style.display='flex'; div.style.justifyContent='space-between'; div.style.padding='8px 0';
-      div.innerHTML = `<div>${i.qty} x ${i.name}</div><div>${currency(i.price*i.qty)}</div>`;
-      itemsEl.appendChild(div);
-      total += i.qty * i.price;
-    });
-    totalEl.textContent = currency(total);
+    <script>
+        const currentUsername = localStorage.getItem("currentUser");
+        const storageKey = currentUsername ? currentUsername+'_cart' : 'guest_cart';
+        
+        // 1. RETRIEVE TABLE ID (Saved when scanning QR code on Index page)
+        const storedTable = localStorage.getItem('currentTable');
+        const tableId = storedTable ? parseInt(storedTable) : 1; // Default to 1 if accessed directly without QR
+        
+        // Update UI
+        document.getElementById('tableDisplay').innerText = `Ordering for Table ${tableId}`;
 
-    document.getElementById('payCash').onclick = ()=> {
-      if(list.length===0) return alert('Cart empty');
-      alert('Payment received (cash). Thank you!');
-      clearCart(); window.location.href='menu.html';
-    };
+        function loadCart() {
+            const cart = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            const list = document.getElementById('summaryList');
+            const totalEl = document.getElementById('finalTotal');
+            const confirmBtn = document.getElementById('confirmBtn');
+            
+            if(cart.length === 0) {
+                list.innerHTML = '<div class="empty-cart-msg">Your cart is currently empty. <br><a href="menu.html" style="color:var(--primary)">Go back to Menu</a></div>';
+                totalEl.innerText = 'Ksh 0';
+                confirmBtn.disabled = true; 
+                confirmBtn.innerText = "Cart is Empty";
+                return;
+            }
 
-    document.getElementById('payMpesa').onclick = ()=> {
-      if(list.length===0) return alert('Cart empty');
-      alert('Simulated M-Pesa confirmed. Thank you!');
-      clearCart(); window.location.href='menu.html';
-    };
-  </script>
+            confirmBtn.disabled = false;
+            confirmBtn.innerText = "Confirm & Pay";
 
+            list.innerHTML = '';
+            let total = 0;
+
+            cart.forEach(item => {
+                const itemTotal = item.price * item.qty;
+                total += itemTotal;
+                list.innerHTML += `
+                    <div class="item-row">
+                        <div class="item-name">${item.name} <span style="font-size:0.8rem; color:#999">x${item.qty}</span></div>
+                        <div class="item-price">Ksh ${itemTotal}</div>
+                    </div>
+                `;
+            });
+            
+            totalEl.innerText = `Ksh ${total}`;
+        }
+
+        function confirmOrder() {
+            const method = document.getElementById('paymentMethod').value;
+            const cart = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            
+            if(cart.length === 0) return;
+
+            // Determine Routing
+            let hasFood = cart.some(i => i.category === 'main' || i.category === 'desserts'); 
+            let hasDrink = cart.some(i => i.category === 'drinks');
+
+            // Create Order Object
+            const db = JSON.parse(localStorage.getItem('srms_data') || '{"orders":[]}');
+            
+            const newOrder = {
+                id: Math.floor(Math.random() * 10000),
+                tableId: tableId, // USING SCANNED TABLE ID
+                waiter: "Unassigned", 
+                customer: currentUsername || "Guest",
+                items: cart.map(i => `${i.name} x${i.qty}`).join(", "),
+                total: parseInt(document.getElementById('finalTotal').innerText.replace('Ksh ', '')),
+                kitchenStatus: hasFood ? 'pending' : 'served', 
+                barStatus: hasDrink ? 'pending' : 'served',    
+                status: 'paid', 
+                timestamp: new Date().toISOString()
+            };
+
+            db.orders.push(newOrder);
+            localStorage.setItem('srms_data', JSON.stringify(db));
+            
+            // Award Points
+            if(currentUsername) {
+                let user = JSON.parse(localStorage.getItem(currentUsername) || '{}');
+                user.points = (user.points || 0) + 10;
+                localStorage.setItem(currentUsername, JSON.stringify(user));
+            }
+
+            // Cleanup
+            localStorage.removeItem(storageKey);
+            window.dispatchEvent(new Event('storage'));
+            
+            alert("Payment Successful! Your order has been sent to the kitchen/bar.");
+            window.location.href = `tracking.html?orderId=${newOrder.id}`;
+        }
+
+        loadCart();
+    </script>
 </body>
 </html>

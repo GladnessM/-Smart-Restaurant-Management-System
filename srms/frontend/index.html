@@ -29,6 +29,8 @@
     .guest-btn:hover { background: rgba(255,255,255,0.3); }
     .staff-link { margin-top: 15px; display: block; font-size: 14px; color: #ffe7c2; text-decoration: none; }
     .staff-link:hover { color: #ffcf8a; text-decoration: underline; }
+    .login-link { margin-top: 15px; display: block; font-size: 14px; color: #ffe7c2; text-decoration: none; }
+    .login-link:hover { color: #ffcf8a; text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -38,7 +40,7 @@
   <div class="header">Smart Restaurant</div>
 
   <div class="container">
-    <h2>Customer Login / Sign Up</h2>
+    <h2>Sign Up</h2>
 
     <label for="name">Full Name</label>
     <input id="name" placeholder="Enter your name">
@@ -46,17 +48,18 @@
     <label for="email">Email</label>
     <input id="email" placeholder="Enter your email">
 
-    <button id="loginBtn">Continue</button>
+    <button id="signupBtn">Continue</button>
 
     <button class="guest-btn" onclick="window.location='menu.html'">
       Continue as Guest (No Points)
     </button>
 
     <a class="staff-link" href="staff_login.html">Staff Login →</a>
+    <a class="login-link" href="login.html">Customer Login →</a>
   </div>
 
   <script>
-    document.getElementById('loginBtn').onclick = () => {
+    document.getElementById('signupBtn').onclick = () => {
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
       if (!name || !email) return alert("Please enter all fields.");
