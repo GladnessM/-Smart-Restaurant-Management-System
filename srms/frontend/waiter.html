@@ -10,76 +10,202 @@
         :root { --brand: #E85D46; --accent: #FE9C00; --bg: #f4f7f6; --text: #333; }
         body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); margin: 0; }
         
-        .navbar { background: var(--brand); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .container { padding: 20px; max-width: 600px; margin: 0 auto; }
+        .navbar { background: var(--brand); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .container { padding: 20px; max-width: 600px; margin: 0 auto; padding-bottom: 80px; }
         
-        .card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        /* Order Card */
+        .card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 5px solid var(--brand); }
         .card h3 { margin: 0 0 10px 0; display: flex; justify-content: space-between; }
         
-        .status-pill { padding: 4px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; }
+        .status-pill { padding: 4px 10px; border-radius: 15px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
         .ready { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; animation: pulse 2s infinite; }
         .preparing { background: #fff3cd; color: #856404; }
+        .served { background: #e2e6ea; color: #6c757d; }
         
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); } 100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); } }
 
-        .fab { position: fixed; bottom: 20px; right: 20px; background: var(--accent); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 15px rgba(254, 156, 0, 0.4); cursor: pointer; }
+        .fab { position: fixed; bottom: 20px; right: 20px; background: var(--accent); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 15px rgba(254, 156, 0, 0.4); cursor: pointer; z-index: 100; transition: transform 0.2s; }
+        .fab:active { transform: scale(0.9); }
+
+        /* MODAL STYLES */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 200; }
+        .modal-content { background: white; width: 100%; max-width: 600px; border-radius: 20px 20px 0 0; padding: 20px; max-height: 80vh; overflow-y: auto; animation: slideUp 0.3s; }
+        
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .menu-item { border: 1px solid #ddd; padding: 10px; border-radius: 8px; text-align: center; cursor: pointer; transition: 0.2s; }
+        .menu-item.selected { border-color: var(--brand); background: #e0f2f1; color: var(--brand); font-weight: bold; }
+        .menu-item img { width: 100%; height: 80px; object-fit: cover; border-radius: 5px; margin-bottom: 5px; }
+
+        select { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ddd; font-size: 1rem; }
+        .btn-submit { width: 100%; padding: 15px; background: var(--brand); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; margin-top: 20px; cursor: pointer; }
+        .close-modal { float: right; font-size: 1.5rem; cursor: pointer; color: #888; }
     </style>
 </head>
 <body>
 
     <div class="navbar">
-        <div style="font-weight:bold;"><i class="fas fa-user-tie"></i> My Tables</div>
-        <div id="waiterName">Alice</div> <!-- Hardcoded for demo, normally from login -->
+        <div style="font-weight:bold;"><i class="fas fa-user-tie"></i> Waiter: Alice</div>
+        <div style="font-size:0.9rem" id="activeTablesCount">0 Tables</div>
     </div>
 
     <div class="container" id="orderList">
         <!-- JS Populated -->
     </div>
 
-    <!-- Floating Action Button for New Order -->
-    <div class="fab" onclick="alert('Open New Order Form')"><i class="fas fa-plus"></i></div>
+    <!-- Floating Action Button -->
+    <div class="fab" onclick="openOrderModal()"><i class="fas fa-plus"></i></div>
+
+    <!-- ORDER MODAL -->
+    <div class="modal-overlay" id="orderModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeOrderModal()">&times;</span>
+            <h2 style="margin-top:0; color:var(--brand)">New Order</h2>
+            
+            <label style="font-weight:bold; display:block; margin-bottom:5px;">Select Table</label>
+            <select id="tableSelect">
+                <option value="">-- Choose Assigned Table --</option>
+                <!-- Populated by JS -->
+            </select>
+
+            <label style="font-weight:bold;">Select Items</label>
+            <div class="menu-grid" id="menuGrid">
+                <!-- Populated by JS -->
+            </div>
+
+            <button class="btn-submit" onclick="submitOrder()">Send to Kitchen</button>
+        </div>
+    </div>
 
     <script>
-        const myName = "Alice"; // Simulating logged in user
+        const myName = "Alice"; 
+        
+        // Sample Menu (Ideally synced with Admin via DB)
+        const menuItems = [
+            { id: 1, name: "Grilled Tilapia", category: "Main", price: 1200, image: "https://via.placeholder.com/150?text=Fish" },
+            { id: 2, name: "Steak & Fries", category: "Main", price: 1500, image: "https://via.placeholder.com/150?text=Steak" },
+            { id: 3, name: "Caesar Salad", category: "Starter", price: 800, image: "https://via.placeholder.com/150?text=Salad" },
+            { id: 4, name: "Dawa Cocktail", category: "Drink", price: 450, image: "https://via.placeholder.com/150?text=Dawa" },
+            { id: 5, name: "Passion Juice", category: "Drink", price: 300, image: "https://via.placeholder.com/150?text=Juice" },
+            { id: 6, name: "Tiramisu", category: "Dessert", price: 550, image: "https://via.placeholder.com/150?text=Cake" }
+        ];
+
+        let selectedItems = [];
 
         function loadData() { return JSON.parse(localStorage.getItem('srms_data') || '{"orders":[]}'); }
         function saveData(data) { localStorage.setItem('srms_data', JSON.stringify(data)); window.dispatchEvent(new Event('storage')); }
 
+        // --- RENDER MAIN LIST ---
         function renderWaiter() {
             const data = loadData();
             const list = document.getElementById('orderList');
             list.innerHTML = '';
 
-            // Filter orders for this waiter
             const myOrders = data.orders.filter(o => o.waiter === myName && o.status !== 'completed');
 
             if (myOrders.length === 0) {
-                list.innerHTML = '<p style="text-align:center; color:#999; margin-top:50px;">No active orders. Good job!</p>';
+                list.innerHTML = '<div style="text-align:center; margin-top:50px; color:#aaa"><i class="fas fa-utensils fa-3x"></i><p>No active orders.</p></div>';
                 return;
             }
 
             myOrders.forEach(order => {
-                let kStatus = `<span class="status-pill ${order.kitchenStatus}">${order.kitchenStatus.toUpperCase()}</span>`;
-                let bStatus = `<span class="status-pill ${order.barStatus}">${order.barStatus.toUpperCase()}</span>`;
+                let kStatus = `<span class="status-pill ${order.kitchenStatus}">${order.kitchenStatus}</span>`;
+                let bStatus = `<span class="status-pill ${order.barStatus}">${order.barStatus}</span>`;
 
-                // If ready, show Deliver button
                 let actionBtn = '';
+                // If ready, show Deliver button
                 if (order.kitchenStatus === 'ready' || order.barStatus === 'ready') {
-                    actionBtn = `<button onclick="markDelivered(${order.id})" style="width:100%; padding:10px; background:var(--brand); color:white; border:none; border-radius:5px; margin-top:10px;">Mark Delivered</button>`;
+                    actionBtn = `<button onclick="markDelivered(${order.id})" style="width:100%; padding:10px; background:var(--brand); color:white; border:none; border-radius:5px; margin-top:10px; font-weight:bold;">Mark Delivered</button>`;
                 }
 
                 list.innerHTML += `
                     <div class="card">
-                        <h3>Table ${order.tableId} <span style="font-size:0.9rem; color:#777">#${order.id}</span></h3>
-                        <p>${order.items}</p>
-                        <div style="display:flex; gap:10px; margin-top:10px;">
-                            <div>Kitchen: ${kStatus}</div>
-                            <div>Bar: ${bStatus}</div>
+                        <h3>Table ${order.tableId} <span style="font-size:0.8rem; color:#777">#${order.id}</span></h3>
+                        <p style="margin:5px 0 15px 0; font-size:1.1rem;">${order.items}</p>
+                        <div style="display:flex; gap:15px; border-top:1px solid #eee; padding-top:10px;">
+                            <div><small>Kitchen:</small> ${kStatus}</div>
+                            <div><small>Bar:</small> ${bStatus}</div>
                         </div>
                         ${actionBtn}
                     </div>
                 `;
             });
+        }
+
+        // --- ORDER MODAL LOGIC ---
+        function openOrderModal() {
+            document.getElementById('orderModal').style.display = 'flex';
+            selectedItems = []; // Reset selection
+            renderMenuGrid();
+            populateTables();
+        }
+
+        function closeOrderModal() {
+            document.getElementById('orderModal').style.display = 'none';
+        }
+
+        function populateTables() {
+            // In a real app, fetch tables assigned to 'Alice' from DB
+            // For demo, we hardcode tables 1, 2, 3
+            const select = document.getElementById('tableSelect');
+            select.innerHTML = '<option value="">-- Choose Assigned Table --</option>';
+            [1, 2, 3].forEach(t => {
+                select.innerHTML += `<option value="${t}">Table ${t}</option>`;
+            });
+        }
+
+        function renderMenuGrid() {
+            const grid = document.getElementById('menuGrid');
+            grid.innerHTML = '';
+            menuItems.forEach(item => {
+                grid.innerHTML += `
+                    <div class="menu-item" onclick="toggleItem(this, '${item.name}', '${item.category}')">
+                        <img src="${item.image}">
+                        <div>${item.name}</div>
+                        <div style="font-size:0.8rem; color:#777">${item.category}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function toggleItem(el, name, category) {
+            el.classList.toggle('selected');
+            if (el.classList.contains('selected')) {
+                selectedItems.push({ name, category });
+            } else {
+                selectedItems = selectedItems.filter(i => i.name !== name);
+            }
+        }
+
+        function submitOrder() {
+            const tableId = document.getElementById('tableSelect').value;
+            
+            if (!tableId) { alert("Please select a table."); return; }
+            if (selectedItems.length === 0) { alert("Please select at least one item."); return; }
+
+            const data = loadData();
+            
+            // Determine routing (Kitchen vs Bar)
+            let hasFood = selectedItems.some(i => i.category === 'Main' || i.category === 'Starter' || i.category === 'Dessert');
+            let hasDrink = selectedItems.some(i => i.category === 'Drink');
+
+            const newOrder = {
+                id: Math.floor(Math.random() * 10000),
+                tableId: parseInt(tableId),
+                waiter: myName,
+                items: selectedItems.map(i => i.name).join(", "),
+                kitchenStatus: hasFood ? 'pending' : 'served', // If no food, mark served immediately
+                barStatus: hasDrink ? 'pending' : 'served',    // If no drink, mark served immediately
+                status: 'active'
+            };
+
+            data.orders.push(newOrder);
+            saveData(data);
+            
+            closeOrderModal();
+            renderWaiter();
+            alert("Order Sent to Kitchen/Bar!");
         }
 
         function markDelivered(orderId) {
