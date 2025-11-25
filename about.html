@@ -5,6 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us | DineEase Technologies</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* --- ADDED TEAM STYLES --- */
+        .team-section {
+            margin-top: 50px;
+            text-align: center;
+        }
+        
+        .team-grid {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+
+        .team-card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 30px;
+            width: 300px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+            border-top: 5px solid #ccc; /* Default border */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .team-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .avatar-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #f9f9f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .team-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .team-role {
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .team-desc {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* Specific Colors */
+        .border-primary { border-top-color: var(--primary-color); }
+        .text-primary { color: var(--primary-color); }
+        
+        .border-secondary { border-top-color: var(--secondary-color); }
+        .text-secondary { color: var(--secondary-color); }
+    </style>
 </head>
 <body class="about-bg">
 
@@ -51,7 +126,38 @@
                     <p>To become Kenya’s leading provider of smart restaurant technology, transforming how people order, serve, and experience food.</p>
                 </div>
             </div>
-        </div>
+
+            <div class="team-section">
+                <h2 style="color: #333; margin-bottom: 10px;">Meet The Team</h2>
+                <p style="color: #777; margin-bottom: 30px;">The developers driving our innovation.</p>
+
+                <div class="team-grid">
+                    
+                    <div class="team-card border-primary">
+                        <div class="avatar-circle text-primary">
+                            <i class="fas fa-server"></i>
+                        </div>
+                        <div class="team-name">Gladness</div>
+                        <div class="team-role text-primary">Lead Developer</div>
+                        <p class="team-desc">
+                            Specializing in Backend Development and System Integration. Gladness architects the core logic that keeps DineEase powerful and reliable.
+                        </p>
+                    </div>
+
+                    <div class="team-card border-secondary">
+                        <div class="avatar-circle text-secondary">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <div class="team-name">Sharon</div>
+                        <div class="team-role text-secondary">Frontend Developer</div>
+                        <p class="team-desc">
+                            Focusing on User Experience and Interface Design. Sharon ensures the system is intuitive, responsive, and visually engaging for all customers.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+            </div>
     </div>
 
     <footer>

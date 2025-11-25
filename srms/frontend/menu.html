@@ -1,3 +1,5 @@
+// YOU ARE NOT SUPPOSED TO BE HERE!
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -565,21 +567,21 @@ if (currentTable) {
     const brandSpan = document.querySelector('.brand span');
     if(brandSpan) brandSpan.innerHTML += ` <small style="font-size:0.6em; color:#555;">(Table ${currentTable})</small>`;
 }
-<?php
-$menuItems = $menuItems ?? [];      // Your menu array
-$currentUser = $currentUser ?? null; // Either an array or null
+// <?php
+// $menuItems = $menuItems ?? [];      // Your menu array
+// $currentUser = $currentUser ?? null; // Either an array or null
 
-// Encode them safely
-$menuJSON = json_encode($menuItems, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-$currentUserJSON = json_encode($currentUser, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-?>
-<script>
+// // Encode them safely
+// $menuJSON = json_encode($menuItems, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+// $currentUserJSON = json_encode($currentUser, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+// ?>
+// <script>
 // --- USER SESSION LOGIC ---
-// const currentUserJSON = localStorage.getItem("currentUser");
-const MENU = <?php echo $menuJSON; ?>;
-const currentUser = <?php echo $currentUserJSON; ?>;
-</script>
-let currentUsername = currentUser ? currentUser.full_name : null;
+// // const currentUserJSON = localStorage.getItem("currentUser");
+// const MENU = <?php echo $menuJSON; ?>;
+// const currentUser = <?php echo $currentUserJSON; ?>;
+// <-/script>
+// let currentUsername = currentUser ? currentUser.full_name : null;
 
 
 const authBtn = document.getElementById("authBtn");
@@ -668,7 +670,7 @@ function populate() {
     card.className = 'menu-card';
     card.innerHTML = `
       <div class="img-container">
-        <img src="${item.image}" alt="${item.name}">
+        <img src="img/${item.image}" alt="${item.name}">
       </div>
       <div class="card-info">
         <h4>${item.name}</h4>

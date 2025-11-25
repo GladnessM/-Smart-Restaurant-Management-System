@@ -1,23 +1,457 @@
 <?php
-session_start();
-require_once '../config/db_config.php';
+// 1. Suppress errors so they don't break the JSON data sent to JS
+error_reporting(0);
+ini_set('display_errors', 0);
 
-// Check if user is logged in
-$currentUser = null;
-if(isset($_SESSION['customer_id'])){
-    $stmt = $pdo->prepare("SELECT id, full_name, points FROM customers WHERE id = ?");
-    $stmt->execute([$_SESSION['customer_id']]);
-    $currentUser = $stmt->fetch();
+session_start();
+require_once '../backend/backend_system/config/db_config.php';
+
+// --- 2. HANDLE LOGOUT ---
+if (isset($_GET['logout'])) {
+    $_SESSION = array();
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000,
+            $params["path"], $params["domain"],
+            $params["secure"], $params["httponly"]
+        );
+    }
+    session_destroy();
+    header("Location: login.php"); // Redirect to Login page
+    exit;
 }
 
-// Fetch menu items from database
-$stmt = $pdo->query("SELECT id, name, price, image, category FROM menu ORDER BY category, name");
-$menuItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// --- 3. CHECK SESSION ---
+$currentUser = null;
+if(isset($_SESSION['customer_id'])){
+    $stmt = $conn->prepare("SELECT id, full_name, points FROM customers WHERE id = ?");
+    $stmt->bind_param("i", $_SESSION['customer_id']);
+    $stmt->execute();
+    $currentUser = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+}
 
-// Pass data to HTML via JSON
-$menuJSON = json_encode($menuItems);
-$currentUserJSON = json_encode($currentUser);
+// --- 4. FETCH MENU & FIX IMAGES ---
+$result = $conn->query("SELECT id, name, price, img_url, category FROM menu_items ORDER BY category, name");
+$menuItems = $result->fetch_all(MYSQLI_ASSOC);
 
+foreach ($menuItems as &$item) {
+    $img = $item['img_url'];
+    
+    // Logic: If it's a web link (http), keep it.
+    // Otherwise, strip any folder info stored in DB and force it to point to admin/img
+    if (strpos($img, 'http') === 0) {
+        // Keep external URL
+    } else {
+        // basename("img/chicken.jpg") -> "chicken.jpg"
+        // basename("chicken.jpg") -> "chicken.jpg"
+        $cleanFilename = basename($img);
+        
+        // Point to the folder relative to THIS file (frontend/menu.php -> admin/img)
+        $item['img_url'] = '../admin/img/' . $cleanFilename;
+    }
+}
+unset($item);
+
+// Encode Data for JavaScript
+$menuJSON = json_encode($menuItems, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+$currentUserJSON = json_encode($currentUser, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 ?>
-<!-- Redirect to HTML file -->
-<?php include 'menu.html'; ?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Smart Restaurant — Menu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root { --primary: #E85D46; --secondary: #C6AD67; --dark: #2D3436; --light: #FFF5F0; --white: #ffffff; --shadow: 0 10px 30px rgba(232, 93, 70, 0.15); }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Poppins', sans-serif; background: var(--light); color: var(--dark); padding-top: 80px; }
+    a { text-decoration: none; color: inherit; }
+    
+    /* Header */
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(0,0,0,0.05); position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; }
+    .brand { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--secondary); display: flex; align-items: center; gap: 10px; }
+    .nav-links { display: flex; gap: 10px; }
+    .nav-link-btn { padding: 8px 16px; border: none; background: transparent; color: var(--dark); font-weight: 500; font-size: 0.95rem; cursor: pointer; transition: all 0.3s; font-family: 'Poppins', sans-serif; border-radius: 20px; }
+    .nav-link-btn:hover, .nav-link-btn.active { color: var(--primary); background: rgba(232, 93, 70, 0.1); }
+    
+    .user-info { display: flex; align-items: center; gap: 15px; }
+    .welcome-text { font-weight: 600; color: var(--dark); font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+    .auth-btn { padding: 8px 24px; border: none; border-radius: 30px; cursor: pointer; font-weight: 600; transition: 0.3s; font-family: 'Poppins', sans-serif; font-size: 0.9rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .btn-login { background: var(--primary); color: white; }
+    .btn-logout { background: white; color: #c62828; border: 1px solid #ffebee; }
+    .points-badge { background: linear-gradient(45deg, var(--secondary), #f1c40f); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; display: flex; align-items: center; gap: 5px; box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3); }
+    
+    /* Hero */
+    .hero { position: relative; width: 94%; margin: 20px auto 50px; height: 420px; border-radius: 25px; overflow: hidden; box-shadow: var(--shadow); }
+    .slides { display: flex; transition: transform 0.8s cubic-bezier(0.45, 0, 0.55, 1); height: 100%; width: 500%; }
+    .slides img { width: 20%; object-fit: cover; height: 100%; }
+    .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6)); display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; padding: 20px; }
+    .overlay h1 { font-family: 'Playfair Display', serif; font-size: 3.5rem; margin-bottom: 15px; line-height: 1.1; text-shadow: 0 4px 15px rgba(0,0,0,0.4); animation: slideDown 1s ease-out; }
+    .overlay p { font-size: 1.2rem; opacity: 0.95; max-width: 600px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); padding: 10px 20px; border-radius: 30px; animation: fadeIn 1.5s ease-out; }
+    @keyframes slideDown { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .dots { position: absolute; bottom: 20px; display: flex; gap: 10px; justify-content: center; width: 100%; }
+    .dots .dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer; transition: 0.3s; }
+    .dots .dot.active { background: var(--primary); transform: scale(1.3); opacity: 1; }
+    
+    /* Menu */
+    .section-header { text-align: center; font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 10px; color: var(--dark); }
+    .category-nav { display: flex; justify-content: center; gap: 15px; margin-bottom: 50px; flex-wrap: wrap; }
+    .cat-btn { background: white; border: none; font-size: 1.05rem; color: #777; cursor: pointer; padding: 12px 30px; border-radius: 50px; transition: all 0.3s; font-family: 'Poppins', sans-serif; font-weight: 500; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    .cat-btn.active, .cat-btn:hover { background: var(--primary); color: white; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(232, 93, 70, 0.3); }
+    
+    .menu-container { max-width: 1200px; margin: 0 auto; padding: 0 20px 100px; }
+    .menu-section { display: none; animation: fadeUp 0.5s ease-out; }
+    .menu-section.active { display: block; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .menu-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 40px; }
+    
+    .menu-card { background: var(--white); border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); transition: all 0.3s ease; display: flex; flex-direction: column; border: 1px solid rgba(0,0,0,0.03); }
+    .menu-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+    .img-container { height: 220px; overflow: hidden; position: relative; }
+    .menu-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+    .menu-card:hover img { transform: scale(1.05); }
+    .card-info { padding: 25px 20px 15px; flex: 1; }
+    .card-info h4 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 8px; color: var(--dark); }
+    .price { color: var(--primary); font-weight: 700; font-size: 1.2rem; }
+    .card-actions { padding: 15px 20px 25px; display: flex; justify-content: space-between; align-items: center; }
+    .qty-input { width: 50px; padding: 8px; border-radius: 10px; border: 2px solid #eee; text-align: center; font-weight: 600; color: var(--dark); }
+    .btn-add { background: var(--dark); border: none; color: white; padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: 600; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+    .btn-add:hover { background: var(--primary); box-shadow: 0 5px 15px rgba(232, 93, 70, 0.3); }
+    
+    /* Cart */
+    .cart-float { position: fixed; bottom: 40px; right: 40px; background: var(--primary); color: white; width: 65px; height: 65px; border-radius: 50%; cursor: pointer; box-shadow: 0 10px 30px rgba(232, 93, 70, 0.4); display: flex; align-items: center; justify-content: center; z-index: 900; transition: transform 0.3s; }
+    .cart-float:hover { transform: scale(1.1) rotate(-5deg); }
+    .cart-float i { font-size: 1.6rem; }
+    .cart-badge { position: absolute; top: -5px; right: -5px; background: var(--secondary); color: white; width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; border: 2px solid white; }
+    .cart-panel { position: fixed; bottom: 0; right: 0; width: 400px; max-height: 90vh; background: white; box-shadow: -10px 0 40px rgba(0,0,0,0.1); transform: translateY(120%); transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); z-index: 2000; display: flex; flex-direction: column; border-top-left-radius: 25px; border-top-right-radius: 25px; }
+    .cart-panel.open { transform: translateY(0); }
+    .cart-header { padding: 25px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; background: var(--white); border-radius: 25px 25px 0 0; }
+    .cart-header h3 { font-family: 'Playfair Display', serif; margin:0; color: var(--dark); }
+    .close-cart { cursor: pointer; font-size: 1.5rem; color: #ccc; transition: 0.3s; }
+    .close-cart:hover { color: var(--primary); }
+    .cart-body { flex: 1; overflow-y: auto; padding: 25px; background: #fafafa; }
+    .cart-item { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; padding: 15px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+    .cart-item img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; }
+    .cart-footer { padding: 30px; background: white; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); }
+    .cart-total { display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: 700; margin-bottom: 20px; color: var(--dark); }
+    .btn-checkout { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: 0.3s; }
+    .btn-checkout:hover { background: #d64d38; box-shadow: 0 5px 15px rgba(232, 93, 70, 0.3); }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">
+      <i class="fas fa-utensils" style="color:var(--primary)"></i>
+      Dine<span>Ease<span>Restaurant</span>
+  </div>
+  
+  <div class="nav-links">
+      <a href="#" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;"><button class="nav-link-btn active">Home</button></a>
+      <a href="checkout.php"><button class="nav-link-btn">Checkout</button></a>
+      <a href="tracking.php"><button class="nav-link-btn">Order Tracking</button></a>
+  </div>
+
+  <div class="user-info">
+      <div id="pointsBadge" class="points-badge">
+          <i class="fas fa-star"></i> <span id="pointsDisplay">0</span>
+      </div>
+      <div class="welcome-text">
+          <i class="far fa-user-circle fa-lg"></i>
+          <span id="welcomeMsg">Guest</span>
+      </div>
+      <button class="auth-btn btn-login" id="authBtn">Login</button>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="slides" id="slides">
+    <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1350&q=80" alt="Gourmet Food">
+    <img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1350&q=80" alt="Steak">
+    <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1350&q=80" alt="Cocktails">
+    <img src="https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=1350&q=80" alt="Desserts">
+    <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1350&q=80" alt="Pasta">
+  </div>
+  <div class="overlay">
+    <h1>Experience <span>Luxury</span><br>In Every Bite.</h1>
+    <p>Order straight from your table and earn rewards with every meal.</p>
+  </div>
+  <div class="dots" id="dots"></div>
+</div>
+
+<div class="section-header">Explore Our Menu</div>
+
+<div class="category-nav" id="categoryNav">
+  <button data-cat="main" class="cat-btn active">Main Course</button>
+  <button data-cat="drinks" class="cat-btn">Drinks</button>
+  <button data-cat="desserts" class="cat-btn">Desserts</button>
+</div>
+
+<div class="menu-container">
+    <div class="menu-section active" id="section-main">
+      <div class="menu-items" id="cat-main"></div>
+    </div>
+    <div class="menu-section" id="section-drinks">
+      <div class="menu-items" id="cat-drinks"></div>
+    </div>
+    <div class="menu-section" id="section-desserts">
+      <div class="menu-items" id="cat-dessert"></div>
+    </div>
+</div>
+
+<div class="cart-float" id="cartFloat">
+    <i class="fas fa-shopping-basket"></i>
+    <span class="cart-badge" id="cartCount">0</span>
+</div>
+
+<div class="cart-panel" id="cartPanel">
+  <div class="cart-header">
+      <h3>Your Order</h3>
+      <span class="close-cart" id="closeCartBtn">&times;</span>
+  </div>
+  <div class="cart-body" id="cartList"></div>
+  <div class="cart-footer">
+    <div class="cart-total">
+        <span>Total:</span>
+        <span id="cartTotal">Ksh 0</span>
+    </div>
+    <button style="width:100%; margin-bottom:10px; background:#f5f5f5; color:#777; border:none; padding:12px; border-radius:10px; cursor:pointer; font-weight:600" id="clearCartBtn">Clear Cart</button>
+    <button class="btn-checkout" id="placeOrderBtn">Place Order & Pay</button>
+  </div>
+</div>
+
+<script>
+const MENU = <?php echo $menuJSON; ?>; 
+const currentUser = <?php echo $currentUserJSON; ?>;
+
+// --- QR CODE TABLE DETECTION LOGIC ---
+const urlParams = new URLSearchParams(window.location.search);
+const scannedTable = urlParams.get('table');
+const openCartParam = urlParams.get('openCart');
+
+if (scannedTable) {
+    localStorage.setItem('currentTable', scannedTable);
+}
+
+// Get Current Table from LocalStorage or Default
+const currentTable = localStorage.getItem('currentTable');
+if (currentTable) {
+    const brandSpan = document.querySelector('.brand span');
+    if(brandSpan) brandSpan.innerHTML += ` <small style="font-size:0.6em; color:#555;">(Table ${currentTable})</small>`;
+}
+
+let currentUsername = currentUser ? currentUser.full_name : null;
+
+const authBtn = document.getElementById("authBtn");
+const welcomeMsg = document.getElementById("welcomeMsg");
+const pointsDisplay = document.getElementById("pointsDisplay");
+const pointsBadge = document.getElementById("pointsBadge");
+
+if(currentUser) {
+    // Logged In State
+    welcomeMsg.innerText = `Hi, ${currentUser.full_name}`;
+    authBtn.innerText = "Logout";
+    authBtn.classList.remove("btn-login");
+    authBtn.classList.add("btn-logout");
+    pointsBadge.style.display = "flex";
+    pointsDisplay.textContent = (currentUser.points !== undefined && currentUser.points !== null) ? currentUser.points : 0;
+    
+    authBtn.onclick = () => {
+        window.location.href = "menu.php?logout=true";
+    };
+} else {
+    // Guest State
+    welcomeMsg.innerText = "Guest";
+    authBtn.innerText = "Login";
+    pointsDisplay.textContent = "0"; 
+    
+    authBtn.onclick = () => {
+        window.location.href = "index.php"; 
+    };
+}
+
+// --- POPULATE MENU ---
+function populate() {
+  const cats = {
+      main: document.getElementById('cat-main'), 
+      drinks: document.getElementById('cat-drinks'), 
+      desserts: document.getElementById('cat-dessert')
+  };
+  
+  Object.values(cats).forEach(el => el.innerHTML = '');
+
+  MENU.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'menu-card';
+    card.innerHTML = `
+      <div class="img-container">
+        <img src="${item.img_url}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
+      </div>
+      <div class="card-info">
+        <h4>${item.name}</h4>
+        <div class="price">Ksh ${item.price}</div>
+      </div>
+      <div class="card-actions">
+        <input type="number" value="1" min="1" id="qty_${item.id}" class="qty-input">
+        <button class="btn-add" onclick="addToCart(${item.id})">
+            <i class="fas fa-plus"></i> Add
+        </button>
+      </div>
+    `;
+    
+    const dbCat = (item.category || "").toLowerCase();
+    if(dbCat.includes('main')) cats.main.appendChild(card);
+    else if(dbCat.includes('drink')) cats.drinks.appendChild(card);
+    else if(dbCat.includes('dessert')) cats.desserts.appendChild(card);
+  });
+}
+populate();
+
+// --- CART LOGIC ---
+function storageKeyForCart() {
+  return currentUsername ? `${currentUsername}_cart` : 'guest_cart';
+}
+function getCart(){ 
+    return JSON.parse(localStorage.getItem(storageKeyForCart())||'[]'); 
+}
+function saveCart(cart){ 
+    localStorage.setItem(storageKeyForCart(), JSON.stringify(cart)); 
+    renderCart(); 
+}
+function clearCart(){ 
+    saveCart([]);
+}
+
+function addToCart(id) {
+  const qtyInput = document.getElementById('qty_'+id);
+  const qty = parseInt(qtyInput ? qtyInput.value : 1) || 1;
+  
+  const item = MENU.find(i => i.id == id);
+  if (!item) return alert('Item not found');
+  
+  const cart = getCart();
+  const existing = cart.find(c => c.id == id);
+    
+  if(existing) {
+      existing.qty += qty;
+  } else {
+      cart.push({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      img_url: item.img_url, 
+      qty
+    });
+  }
+  saveCart(cart);
+  alert(`${item.name} added to cart!`);
+}
+
+function renderCart(){
+  const list = document.getElementById('cartList');
+  const countBadge = document.getElementById('cartCount');
+  const totalEl = document.getElementById('cartTotal');
+  const cart = getCart();
+  
+  list.innerHTML = '';
+  let total = 0;
+  let count = 0;
+
+  if(cart.length === 0) {
+      list.innerHTML = '<div style="text-align:center; color:#999; padding:20px;">Your cart is empty</div>';
+  }
+
+  cart.forEach((c, idx) => {
+    total += c.price * c.qty;
+    count += c.qty;
+    
+    const itemHtml = document.createElement('div');
+    itemHtml.className = 'cart-item';
+    itemHtml.innerHTML += `
+      <img src="${c.img_url}" alt="${c.name}" onerror="this.src='https://via.placeholder.com/60?text=No+Img'">
+      <div style="flex:1">
+          <strong style="color:var(--dark)">${c.name}</strong>
+          <div style="color:#777; font-size:0.9rem">Ksh ${c.price} x ${c.qty}</div>
+      </div>
+        <div style="font-weight:bold; color:var(--primary)">Ksh ${c.price * c.qty}</div>
+        <i class="fas fa-trash" style="color:#ff5252; cursor:pointer; margin-left:10px" onclick="removeFromCart(${idx})"></i>
+    `;
+    list.appendChild(itemHtml);
+  });
+
+  countBadge.innerText = count;
+  totalEl.innerText = `Ksh ${total}`;
+  countBadge.style.display = count > 0 ? 'flex' : 'none';
+}
+
+function removeFromCart(idx) {
+    const cart = getCart();
+    cart.splice(idx, 1);
+    saveCart(cart);
+}
+
+// --- UI HANDLERS ---
+document.getElementById('cartFloat').onclick = () => document.getElementById('cartPanel').classList.add('open');
+document.getElementById('closeCartBtn').onclick = () => document.getElementById('cartPanel').classList.remove('open');
+
+document.getElementById('clearCartBtn').onclick = () => { 
+    if(confirm("Are you sure you want to remove all items?")) {
+        clearCart();
+    }
+};
+
+document.getElementById('placeOrderBtn').onclick = () => {
+    const cart = getCart();
+    if(cart.length === 0) return alert("Your cart is empty! Add some delicious items first.");
+    window.location.href = "checkout.php";
+};
+
+// --- SLIDESHOW ---
+const slides=document.getElementById('slides');
+const dotsContainer=document.getElementById('dots');
+let idx=0;
+for(let i=0;i<5;i++){
+  const dot=document.createElement('div'); dot.className='dot'; if(i===0) dot.classList.add('active');
+  dot.onclick=()=>{ idx=i; updateHero(); };
+  dotsContainer.appendChild(dot);
+}
+function updateHero(){
+  slides.style.transform=`translateX(-${idx * 20}%)`; 
+  Array.from(dotsContainer.children).forEach((d,i)=>d.classList.toggle('active',i===idx));
+}
+setInterval(()=>{ idx=(idx+1)%5; updateHero(); },4000);
+
+
+// --- CATEGORY SWITCHING ---
+document.getElementById('categoryNav').addEventListener('click', (ev) => {
+  if(ev.target.classList.contains('cat-btn')){
+    const cat = ev.target.getAttribute('data-cat');
+    
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    ev.target.classList.add('active');
+    
+    ['main','drinks','desserts'].forEach(c => {
+      const el = document.getElementById('section-'+c);
+      if(c === cat) el.classList.add('active');
+      else el.classList.remove('active');
+    });
+  }
+});
+
+// Init
+populate();
+renderCart();
+
+if (openCartParam === 'true') {
+    document.getElementById('cartPanel').classList.add('open');
+}
+</script>
+</body>
+</html>
