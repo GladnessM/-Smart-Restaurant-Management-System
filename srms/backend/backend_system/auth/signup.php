@@ -1,25 +1,43 @@
 <?php
-header('Content-Type: application/json');
-require_once '../config/db_config.php';
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
 
-$data = json_decode(file_get_contents('php://input'), true);
-
-if (!isset($data['username'], $data['password'])) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Username and password required']);
-    exit;
+// 2. Handle Preflight requests
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
+    exit();
 }
 
-$username = trim($data['username']);
-$password = password_hash($data['password'], PASSWORD_BCRYPT); // hash password
+header('Content-Type: application/json');
 
-try {
-    $stmt = $pdo->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
-    $stmt->execute([$username, $password]);
+// 3. Suppress HTML warnings that break JSON
+error_reporting(0); 
+ini_set('display_errors', 0);
 
-    echo json_encode(['success' => true, 'message' => 'User created']);
 
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Username already exists']);
+require_once '../config/db_config.php';
+
+
+
+//$data = json_decode(file_get_contents('php://input'), true);
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    $pass = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    
+
+    $sql = "INSERT INTO customers (full_name, email, password_hash)
+            VALUES (?, ?, ?)";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sss", $name, $email, $pass);
+
+    if ($stmt->execute()) {
+    echo json_encode(['success'=>true]);
+    } else {
+        echo json_encode(['success'=>false, 'message'=>'Email already exists or invalid input']);
+    }
 }

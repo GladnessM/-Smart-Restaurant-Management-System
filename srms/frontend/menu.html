@@ -544,9 +544,10 @@
   </div>
 </div>
 
+
 <script>
-// --- QR CODE TABLE DETECTION LOGIC ---
-// When customer scans QR, URL looks like: index.html?table=5
+// <// --- QR CODE TABLE DETECTION LOGIC ---
+// // When customer scans QR, URL looks like: index.html?table=5
 const urlParams = new URLSearchParams(window.location.search);
 const scannedTable = urlParams.get('table');
 const openCartParam = urlParams.get('openCart');
@@ -564,29 +565,45 @@ if (currentTable) {
     const brandSpan = document.querySelector('.brand span');
     if(brandSpan) brandSpan.innerHTML += ` <small style="font-size:0.6em; color:#555;">(Table ${currentTable})</small>`;
 }
+<?php
+$menuItems = $menuItems ?? [];      // Your menu array
+$currentUser = $currentUser ?? null; // Either an array or null
 
+// Encode them safely
+$menuJSON = json_encode($menuItems, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+$currentUserJSON = json_encode($currentUser, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+?>
+<script>
 // --- USER SESSION LOGIC ---
-const currentUsername = localStorage.getItem("currentUser");
+// const currentUserJSON = localStorage.getItem("currentUser");
+const MENU = <?php echo $menuJSON; ?>;
+const currentUser = <?php echo $currentUserJSON; ?>;
+</script>
+let currentUsername = currentUser ? currentUser.full_name : null;
+
+
 const authBtn = document.getElementById("authBtn");
 const welcomeMsg = document.getElementById("welcomeMsg");
 const pointsDisplay = document.getElementById("pointsDisplay");
 const pointsBadge = document.getElementById("pointsBadge");
 
-if(currentUsername) {
+if(currentUser) {
     // Logged In State
-    welcomeMsg.innerText = `Hi, ${currentUsername}`;
+    // const currentUser = JSON.parse(currentUserJSON);
+    welcomeMsg.innerText = `Hi, ${currentUser.full_name}`;
     authBtn.innerText = "Logout";
     authBtn.classList.remove("btn-login");
     authBtn.classList.add("btn-logout");
+
     
     // Show points
     pointsBadge.style.display = "flex";
-    let user = JSON.parse(localStorage.getItem(currentUsername) || '{}');
-    if(!user.points) user.points = 0;
-    pointsDisplay.textContent = user.points;
+    // let customers = JSON.parse(localStorage.getItem(currentUsername) || '{}');
+    // if(!customers.points) customers.points = 0;
+    pointsDisplay.textContent = customers.points|| 0;
     
     authBtn.onclick = () => {
-        localStorage.removeItem("currentUser");
+        //localStorage.removeItem("currentUser");
         window.location.href = "login.html";
     };
 } else {
@@ -603,10 +620,10 @@ if(currentUsername) {
 // Points Logic Helper
 function addPoints(amount){
   if(!currentUsername) return; 
-  let user = JSON.parse(localStorage.getItem(currentUsername) || '{}');
-  user.points = (user.points || 0) + amount;
-  localStorage.setItem(currentUsername, JSON.stringify(user));
-  document.getElementById("pointsDisplay").textContent = user.points;
+  let customers = JSON.parse(localStorage.getItem(currentUsername) || '{}');
+  customers.points = (customers.points || 0) + amount;
+  localStorage.setItem(currentUsername, JSON.stringify(customers));
+  document.getElementById("pointsDisplay").textContent = customers.points;
 }
 
 // --- SLIDESHOW ---
@@ -641,23 +658,6 @@ document.getElementById('categoryNav').addEventListener('click', (ev) => {
   }
 });
 
-// --- MENU DATA ---
-const MENU = [
-  // Mains
-  {id:1, name:"Grilled Chicken", price:1200, img:"https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=500&q=80", category:"main"},
-  {id:2, name:"Ribeye Steak", price:2500, img:"https://images.unsplash.com/photo-1546964124-0cce460f38ef?auto=format&fit=crop&w=500&q=80", category:"main"},
-  {id:3, name:"Vegetable Pasta", price:1350, img:"https://images.unsplash.com/photo-1626844131082-256783844137?auto=format&fit=crop&w=500&q=80", category:"main"},
-  {id:4, name:"Fish & Chips", price:1400, img:"https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=500&q=80", category:"main"},
-  
-  // Drinks
-  {id:6, name:"Ice Cold Coke", price:150, img:"https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=500&q=80", category:"drinks"},
-  {id:7, name:"Dawa Cocktail", price:450, img:"https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=500&q=80", category:"drinks"},
-  {id:8, name:"Fresh Orange", price:300, img:"https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=500&q=80", category:"drinks"},
-  
-  // Desserts
-  {id:9, name:"Lava Cake", price:650, img:"https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=500&q=80", category:"desserts"},
-  {id:10, name:"Berry Tart", price:500, img:"https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&w=500&q=80", category:"desserts"}
-];
 
 // --- POPULATE MENU ---
 function populate() {
@@ -668,7 +668,7 @@ function populate() {
     card.className = 'menu-card';
     card.innerHTML = `
       <div class="img-container">
-        <img src="${item.img}" alt="${item.name}">
+        <img src="${item.image}" alt="${item.name}">
       </div>
       <div class="card-info">
         <h4>${item.name}</h4>
@@ -687,7 +687,7 @@ function populate() {
     else if(item.category === 'desserts') cats.desserts.appendChild(card);
   });
 }
-
+populate();
 // --- CART LOGIC ---
 function getCart(){ 
     const storageKey = currentUsername ? currentUsername+'_cart' : 'guest_cart';

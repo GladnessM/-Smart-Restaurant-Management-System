@@ -1,16 +1,24 @@
 <?php
-// config/db_connect.php
-$host = "127.0.0.1"; // Replace with your host
-$port = "3306";
-$dbname = "restaurant_db"; // Default DB name
-$user = "root";   // Default user
-$password = ""; // Replace with your DB password
+header("Content-Type: application/json");
 
-try {
-    $conn = new PDO("pgsql:host=$host;port=$port;dbname=$dbname", $user, $password);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    // echo "Database connected successfully!";
-} catch (PDOException $e) {
-    die("Database connection failed: " . $e->getMessage());
+$host = "localhost";
+$user = "root";
+$pass = "";
+$dbname = "restaurant";
+
+$conn = new mysqli($host, $user, $pass, $dbname);
+
+if ($conn->connect_error) {
+    echo json_encode([
+        "status" => "error",
+        "message" => "Database connection failed",
+        "error" => $conn->connect_error
+    ]);
+    exit;
 }
+
+echo json_encode([
+    "status" => "success",
+    "message" => "Database connected successfully!"
+]);
 ?>

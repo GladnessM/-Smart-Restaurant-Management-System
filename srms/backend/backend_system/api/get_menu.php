@@ -2,23 +2,28 @@
 header('Content-Type: application/json');
 require_once '../config/db_config.php';
 
+$stmt = $pdo->query("SELECT id, name, category, price, img_url AS img FROM menu_items ORDER BY category, id");
+$menu = $stmt->fetchAll();
 
-$category = isset($_GET['category']) ? trim($_GET['category']) : '';
+echo json_encode($menu);
+?>
 
-
-try {
-if ($category) {
-$stmt = $pdo->prepare("SELECT * FROM menu_items WHERE category = ?");
-$stmt->execute([$category]);
-} else {
-$stmt = $pdo->query("SELECT * FROM menu_items");
-}
+// $category = isset($_GET['category']) ? trim($_GET['category']) : '';
 
 
-echo json_encode($stmt->fetchAll());
+// try {
+// if ($category) {
+// $stmt = $pdo->prepare("SELECT * FROM menu_items WHERE category = ?");
+// $stmt->execute([$category]);
+// } else {
+// $stmt = $pdo->query("SELECT * FROM menu_items");
+// }
 
 
-} catch (Exception $e) {
-http_response_code(500);
-echo json_encode(['error' => 'Failed to fetch menu']);
-}
+// echo json_encode($stmt->fetchAll());
+
+
+// } catch (Exception $e) {
+// http_response_code(500);
+// echo json_encode(['error' => 'Failed to fetch menu']);
+// }

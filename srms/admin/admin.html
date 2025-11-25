@@ -8,15 +8,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* --- THEME VARIABLES --- */
+        /* --- THEME VARIABLES (Matched to css/style.css) --- */
         :root {
-            --primary-color: #E85D46;  
-            --secondary-color: #C6AD67; 
+            --primary-color: #E85D46;  /* Warm Coral Red */
+            --secondary-color: #C6AD67; /* Soft Gold */
             --text-dark: #333333;
             --bg-light: #f9f9f9;
             --white: #ffffff;
+            
+            /* Functional Colors */
             --danger: #e74c3c;
             --success: #2ecc71;
+            --warning: #f1c40f;
             --info: #3498db;
             --muted: #7a7a7a;
         }
@@ -36,14 +39,14 @@
         /* --- LAYOUT --- */
         .sidebar {
             width: 260px;
-            background: var(--text-dark);
+            background: var(--text-dark); /* Dark Sidebar like Footer */
             color: white;
             display: flex;
             flex-direction: column;
             padding: 20px;
             flex-shrink: 0;
             box-shadow: 4px 0 10px rgba(0,0,0,0.1);
-            border-right: 4px solid var(--secondary-color);
+            border-right: 4px solid var(--secondary-color); /* Gold Accent Border */
         }
 
         .brand { 
@@ -73,20 +76,45 @@
             font-weight: 500;
         }
         
-        .nav-item:hover { background: rgba(255,255,255,0.1); color: var(--secondary-color); }
-        .nav-item.active { background: var(--primary-color); color: white; box-shadow: 0 4px 15px rgba(232, 93, 70, 0.4); }
+        .nav-item:hover { 
+            background: rgba(255,255,255,0.1); 
+            color: var(--secondary-color); 
+        }
+        
+        .nav-item.active { 
+            background: var(--primary-color); 
+            color: white; 
+            box-shadow: 0 4px 15px rgba(232, 93, 70, 0.4);
+        }
 
-        .logout-link { margin-top: auto; color: var(--secondary-color) !important; border: 1px solid var(--secondary-color); }
-        .logout-link:hover { background: var(--secondary-color); color: white !important; }
+        /* Logout Link Styling */
+        .logout-link {
+            margin-top: auto; 
+            color: var(--secondary-color) !important;
+            border: 1px solid var(--secondary-color);
+        }
+        .logout-link:hover { 
+            background: var(--secondary-color); 
+            color: white !important; 
+        }
 
         .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         
         .top-header { 
-            background: var(--white); padding: 20px 30px; display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-bottom: 1px solid #eee;
+            background: var(--white);
+            padding: 20px 30px;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-bottom: 1px solid #eee;
         }
 
-        .scrollable-content { flex: 1; padding: 30px; overflow-y: auto; }
+        .scrollable-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
 
         /* --- WIDGETS --- */
         .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 30px; }
@@ -94,12 +122,13 @@
             background: white; padding: 20px; border-radius: 10px; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.05); position: relative; overflow: hidden; border-top: 4px solid var(--secondary-color);
         }
+        /* Specific colors for specific stats if needed, or keep uniform */
         .stat-card:nth-child(1) { border-top-color: var(--primary-color); }
         
         .stat-label { font-size: 0.85rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
         .stat-number { font-size: 1.8rem; font-weight: bold; color: var(--text-dark); margin-top: 5px; }
 
-        /* --- TABLES & LISTS --- */
+        /* --- TABLES --- */
         .tables-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
         .table-card {
             background: white; padding: 20px; border-radius: 10px;
@@ -109,16 +138,20 @@
         .table-card:hover { transform: translateY(-5px); }
         .table-card.occupied { border-top-color: var(--primary-color); background: #fff5f5; }
         
-        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; text-transform: uppercase; }
+        .status-badge { 
+            padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; 
+            display: inline-block; text-transform: uppercase; letter-spacing: 0.5px;
+        }
         .status-free { background: #dcfce7; color: var(--success); }
         .status-busy { background: #ffe6e6; color: var(--primary-color); }
         
-        /* Status Colors */
+        /* Order Status Colors */
         .st-pending { background: #fff3cd; color: #856404; } 
         .st-preparing { background: #cce5ff; color: #004085; } 
         .st-ready { background: #d4edda; color: #155724; } 
         .st-delivered { background: #d6d8d9; color: #1b1e21; } 
 
+        /* --- DATA TABLE --- */
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         th { background: var(--text-dark); color: white; padding: 16px; text-align: left; font-weight: 600; }
         td { padding: 16px; border-bottom: 1px solid #f0f0f0; color: #444; vertical-align: middle; }
@@ -127,6 +160,7 @@
         /* --- CONTROLS --- */
         .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: 600; transition: opacity 0.2s, transform 0.2s; }
         .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        
         .btn-primary { background: var(--primary-color); }
         .btn-accent { background: var(--secondary-color); color: white; }
         .btn-danger { background: var(--danger); }
@@ -138,7 +172,7 @@
         input:focus, select:focus { outline: none; border-color: var(--secondary-color); }
         input[type="file"] { padding: 8px; background: white; }
 
-        /* --- QR & STAFF --- */
+        /* --- QR GENERATOR --- */
         .qr-card {
             background: white; border-radius: 10px; padding: 40px; text-align: center;
             box-shadow: 0 6px 20px rgba(0,0,0,0.05); max-width: 500px; margin: 0 auto; border-top: 5px solid var(--primary-color);
@@ -146,10 +180,12 @@
         .qr-display { margin: 20px 0; padding: 20px; border: 2px dashed var(--secondary-color); display: inline-block; border-radius: 10px; }
         .qr-display img { width: 180px; height: 180px; }
 
+        /* --- UTILS --- */
         .section { display: none; animation: fadeIn 0.4s; }
         .section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* Staff List Styling */
         .staff-list-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee; }
         .staff-list-item:last-child { border-bottom: none; }
         .role-badge { padding: 2px 8px; border-radius: 10px; background: #eee; font-size: 0.8rem; color: #555; margin-left:10px; }
@@ -186,6 +222,7 @@
             <i class="fas fa-hamburger"></i> Menu
         </div>
         
+        <!-- LOGOUT LINK -->
         <a href="../frontend/staff_login.html" class="nav-item logout-link">
             <i class="fas fa-sign-out-alt"></i> Logout
         </a>
@@ -205,7 +242,7 @@
 
         <div class="scrollable-content">
             
-            <!-- DASHBOARD -->
+            <!-- ================= TAB 1: DASHBOARD ================= -->
             <div id="dashboard" class="section active">
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -249,11 +286,13 @@
                             <th>Bar Status</th>
                         </tr>
                     </thead>
-                    <tbody id="incomingOrdersTable"></tbody>
+                    <tbody id="incomingOrdersTable">
+                        <!-- JS Populated -->
+                    </tbody>
                 </table>
             </div>
 
-            <!-- TABLE MANAGEMENT -->
+            <!-- ================= TAB 2: TABLE MANAGEMENT ================= -->
             <div id="tables" class="section">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h3>Floor Plan & Assignments</h3>
@@ -262,18 +301,21 @@
                             <input type="number" id="newTableSeats" placeholder="Seats" style="margin:0; width:80px; padding:8px;">
                             <button class="btn btn-primary btn-sm" onclick="addTable()">Add Table</button>
                         </div>
-                        <button class="btn btn-accent" onclick="simulateCustomerArrival()">
+                        <!-- <button class="btn btn-accent" onclick="simulateCustomerArrival()">
                             <i class="fas fa-user-plus"></i> Simulate Arrival
-                        </button>
+                        </button> -->
                     </div>
                 </div>
-                <div class="tables-grid" id="tablesGrid"></div>
+                <div class="tables-grid" id="tablesGrid">
+                    <!-- JS Populated -->
+                </div>
             </div>
 
-            <!-- STAFF MANAGEMENT -->
+            <!-- ================= TAB 3: STAFF MANAGEMENT ================= -->
             <div id="staff" class="section">
                 <h3>Staff Management</h3>
                 <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 30px;">
+                    <!-- Add Staff Form -->
                     <div class="stat-card">
                         <h4 style="margin-top:0; color:var(--text-dark);">Register New Staff</h4>
                         <input type="text" id="newStaffName" placeholder="Full Name">
@@ -291,42 +333,59 @@
                         </button>
                     </div>
                     
+                    <!-- Staff List -->
                     <div class="stat-card" style="border-top-color: var(--info);">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <h4 style="margin-top:0; color:var(--info);">Staff Directory</h4>
                             <span style="font-size:0.8rem; color:var(--muted)">Active Staff Available: <strong id="activeStaffCount">0</strong></span>
                         </div>
-                        <div id="staffList"></div>
+                        <div id="staffList">
+                            <!-- Populated by JS -->
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- QR GENERATOR -->
+            <!-- ================= TAB 4: QR GENERATOR ================= -->
             <div id="qr-gen" class="section">
                 <div class="qr-card">
                     <h3>Generate Table QR</h3>
                     <p style="color:var(--muted)">Select a table to generate its unique menu ordering code.</p>
-                    <select id="qrTableSelect" onchange="generateQR()"></select>
+                    
+                    <select id="qrTableSelect" onchange="generateQR()">
+                        <!-- Options Populated via JS -->
+                    </select>
+
                     <div class="qr-display">
                         <img id="qrImage" src="" alt="QR Code">
                     </div>
+                    
                     <div id="qrText" style="font-weight:bold; margin-bottom:20px; color:var(--text-dark)">Table 1</div>
+
                     <div style="display:flex; gap:10px; justify-content:center;">
-                        <button class="btn btn-secondary" onclick="generateQR()"><i class="fas fa-sync"></i> Refresh</button>
-                        <button class="btn btn-primary" onclick="printQR()"><i class="fas fa-print"></i> Print Label (PDF)</button>
+                        <button class="btn btn-secondary" onclick="generateQR()">
+                            <i class="fas fa-sync"></i> Refresh
+                        </button>
+                        <button class="btn btn-primary" onclick="printQR()">
+                            <i class="fas fa-print"></i> Print Label (PDF)
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- MENU MANAGEMENT -->
+            <!-- ================= TAB 5: MENU MANAGER ================= -->
             <div id="menu" class="section">
                 <h3>Menu Management</h3>
                 <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 30px;">
+                    <!-- Add Form -->
                     <div class="stat-card">
                         <h4 style="margin-top:0; color:var(--text-dark);">Add New Item</h4>
                         <input type="text" id="newItemName" placeholder="Item Name">
+                        
+                        <!-- NEW FILE INPUT -->
                         <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:5px;">Item Image</label>
                         <input type="file" id="newItemImage" accept="image/*">
+                        
                         <input type="number" id="newItemPrice" placeholder="Price (KSH)">
                         <select id="newItemCategory">
                             <option value="Appetizer">Appetizer</option>
@@ -339,6 +398,7 @@
                             <i class="fas fa-save"></i> Save to Menu
                         </button>
                     </div>
+                    <!-- List -->
                     <div>
                         <table id="menuTable">
                             <thead><tr><th>Image</th><th>Item</th><th>Category</th><th>Price</th><th>Action</th></tr></thead>
@@ -351,7 +411,7 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT -->
+    <!-- JAVASCRIPT LOGIC -->
     <script>
         // --- DATA ---
         let staffMembers = [
@@ -366,7 +426,7 @@
             { id: 2, capacity: 2, status: 'free', waiter: null },
             { id: 3, capacity: 6, status: 'free', waiter: null },
             { id: 4, capacity: 4, status: 'free', waiter: null },
-            { id: 5, capacity: 2, status: 'free', waiter: null }
+            { id: 5, capacity: 2, status: 'free', waiter: null },
         ];
 
         let orders = [];
@@ -380,10 +440,11 @@
             document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             
-            if (event && event.currentTarget && event.currentTarget.classList.contains('logout-link')) return;
+            // Handle Logout Link Special Case
+            if (event.currentTarget && event.currentTarget.classList.contains('logout-link')) return;
 
             document.getElementById(sectionId).classList.add('active');
-            if (event && event.currentTarget) event.currentTarget.classList.add('active');
+            if (event.currentTarget) event.currentTarget.classList.add('active');
             
             const titleMap = {
                 'dashboard': 'Overview', 'tables': 'Floor Management', 'staff': 'Staff Directory',
@@ -399,17 +460,23 @@
         function renderOrders() {
             const tbody = document.getElementById('incomingOrdersTable');
             tbody.innerHTML = '';
-            let activeCount = 0, kitchenCount = 0, barCount = 0;
+            let activeCount = 0;
+            let kitchenCount = 0;
+            let barCount = 0;
 
             orders.forEach(order => {
                 if (order.status !== 'completed') {
                     activeCount++;
-                    if(['preparing','pending'].includes(order.kitchenStatus)) kitchenCount++;
-                    if(['preparing','pending'].includes(order.barStatus)) barCount++;
+                    if(order.kitchenStatus === 'preparing' || order.kitchenStatus === 'pending') kitchenCount++;
+                    if(order.barStatus === 'preparing' || order.barStatus === 'pending') barCount++;
 
                     const tr = document.createElement('tr');
+                    
+                    // Determine Waiter Status
                     let assignedWaiter = tables.find(t => t.id === order.tableId)?.waiter;
                     let waiterDisplay = assignedWaiter ? `<span style="color:var(--primary-color); font-weight:bold;">${assignedWaiter}</span>` : `<span style="color:var(--danger)">Unassigned</span>`;
+                    
+                    // Determine Order Details Display (Hide if no waiter)
                     let itemsDisplay = assignedWaiter ? order.items : `<span style="color:var(--muted); font-style:italic;">Waiting for waiter...</span>`;
 
                     tr.innerHTML = `
@@ -417,8 +484,14 @@
                         <td><strong>Table ${order.tableId}</strong></td>
                         <td>${waiterDisplay}</td>
                         <td>${itemsDisplay}</td>
-                        <td><span class="status-badge ${getStatusClass(order.kitchenStatus)}" onclick="cycleStatus(${order.id}, 'kitchenStatus')" style="cursor:pointer">${order.kitchenStatus}</span></td>
-                        <td><span class="status-badge ${getStatusClass(order.barStatus)}" onclick="cycleStatus(${order.id}, 'barStatus')" style="cursor:pointer">${order.barStatus}</span></td>
+                        <td><span class="status-badge ${getStatusClass(order.kitchenStatus)}" 
+                                  style="cursor:pointer" onclick="cycleStatus(${order.id}, 'kitchenStatus')">
+                            ${order.kitchenStatus} <i class="fas fa-sync-alt" style="font-size:0.7em; opacity:0.5"></i>
+                        </span></td>
+                        <td><span class="status-badge ${getStatusClass(order.barStatus)}" 
+                                  style="cursor:pointer" onclick="cycleStatus(${order.id}, 'barStatus')">
+                            ${order.barStatus} <i class="fas fa-sync-alt" style="font-size:0.7em; opacity:0.5"></i>
+                        </span></td>
                     `;
                     tbody.appendChild(tr);
                 }
@@ -432,15 +505,26 @@
             const grid = document.getElementById('tablesGrid');
             grid.innerHTML = '';
             let occupiedCount = 0;
+
             const waiterOptions = staffMembers.filter(s => s.role === 'Waiter' && s.active);
 
             tables.forEach(t => {
                 if(t.status === 'occupied') occupiedCount++;
                 const card = document.createElement('div');
                 card.className = `table-card ${t.status === 'occupied' ? 'occupied' : ''}`;
+
+                card.addEventListener('click', (e) => {
+    // Prevent clicks on buttons/selects from triggering arrival
+    if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'SELECT') {
+        simulateCustomerArrival(t.id);
+    }
+  });
                 
-                let waiterSelect = `<select onchange="assignTableWaiter(${t.id}, this.value)" style="margin-top:10px; padding:5px; width:100%; font-size:0.9rem"><option value="">-- Assign Waiter --</option>`;
-                waiterOptions.forEach(w => { waiterSelect += `<option value="${w.name}" ${t.waiter === w.name ? 'selected' : ''}>${w.name}</option>`; });
+                let waiterSelect = `<select onchange="assignTableWaiter(${t.id}, this.value)" style="margin-top:10px; padding:5px; width:100%; font-size:0.9rem">
+                                        <option value="">-- Assign Waiter --</option>`;
+                waiterOptions.forEach(w => {
+                    waiterSelect += `<option value="${w.name}" ${t.waiter === w.name ? 'selected' : ''}>${w.name}</option>`;
+                });
                 waiterSelect += `</select>`;
 
                 card.innerHTML = `
@@ -448,7 +532,11 @@
                     <div class="status-badge ${t.status === 'free' ? 'status-free' : 'status-busy'}">${t.status}</div>
                     <div style="color:var(--muted); font-size:0.85rem;">${t.capacity} Seats</div>
                     ${t.status === 'occupied' ? waiterSelect : '<div style="height:40px"></div>'}
-                    ${t.status === 'occupied' ? `<button class="btn btn-success btn-sm" onclick="checkoutTable(${t.id})" style="margin-top:15px; width:100%">Mark Free & Done</button>` : ''}
+                    ${t.status === 'occupied' 
+                        ? `<button class="btn btn-success btn-sm" onclick="checkoutTable(${t.id})" style="margin-top:15px; width:100%">
+                             Mark Free & Done
+                           </button>` 
+                        : ''}
                 `;
                 grid.appendChild(card);
             });
@@ -460,21 +548,19 @@
             let html = '';
             let activeCount = 0;
             
-            staffMembers.forEach(s => {
+            staffMembers.forEach((s, index) => {
                 if(s.active) activeCount++;
                 html += `
                     <div class="staff-list-item">
                         <div style="display:flex; align-items:center;">
-                            <span class="staff-status ${s.active ? 'status-active' : 'status-absent'}" onclick="toggleStaffStatus(${s.code})">
-                                ${s.active ? 'Active' : 'Absent'} <i class="fas fa-sync-alt" style="font-size:0.7em"></i>
+                            <span class="staff-status ${s.active ? 'status-active' : 'status-absent'}" 
+                                  onclick="toggleStaffStatus(${index})">
+                                  ${s.active ? 'Active' : 'Absent'} <i class="fas fa-sync-alt" style="font-size:0.7em"></i>
                             </span>
-                            <div style="margin-left:15px;">
-                                <div style="font-weight:500;">${s.name}</div>
-                                <div style="font-size:0.8rem; color:var(--muted);">Code: <strong>${s.code}</strong></div>
-                            </div>
-                            <span class="role-badge" style="margin-left:10px">${s.role}</span>
+                            <span style="margin-left:15px; font-weight:500;">${s.name}</span>
+                            <span class="role-badge">${s.role}</span>
                         </div>
-                        <button class="btn btn-danger btn-sm" onclick="removeStaff(${s.code})">Remove</button>
+                        <button class="btn btn-danger btn-sm" onclick="removeStaff(${index})">Remove</button>
                     </div>
                 `;
             });
@@ -489,8 +575,10 @@
                 const imgUrl = item.image || 'https://via.placeholder.com/50';
                 tbody.innerHTML += `
                     <tr>
-                        <td><img src="${imgUrl}" class="menu-thumb"></td>
-                        <td>${item.name}</td><td>${item.category}</td><td>KSH ${item.price}</td>
+                        <td><img src="${imgUrl}" class="menu-thumb" alt="Item"></td>
+                        <td>${item.name}</td>
+                        <td>${item.category}</td>
+                        <td>KSH ${item.price}</td>
                         <td><button class="btn btn-danger btn-sm" onclick="deleteMenuItem(${index})"><i class="fas fa-trash"></i></button></td>
                     </tr>`;
             });
@@ -501,36 +589,24 @@
             const name = document.getElementById('newStaffName').value;
             const role = document.getElementById('newStaffRole').value;
             if(name) {
-                const code = Math.floor(1000 + Math.random() * 9000);
-                staffMembers.push({ name: name, role: role, active: true, code: code });
+                staffMembers.push({ name: name, role: role, active: true });
                 renderStaffList();
                 renderTables(); 
                 document.getElementById('newStaffName').value = '';
-                alert(`Staff Registered!\nName: ${name}\nCode: ${code}`);
             }
         }
 
-        function toggleStaffStatus(code) {
-            const member = staffMembers.find(s => s.code === code);
-            if (member) {
-                member.active = !member.active;
+        function toggleStaffStatus(index) {
+            staffMembers[index].active = !staffMembers[index].active;
+            renderStaffList();
+            renderTables();
+        }
+
+        function removeStaff(index) {
+            if(confirm("Permanently remove " + staffMembers[index].name + "?")) {
+                staffMembers.splice(index, 1);
                 renderStaffList();
                 renderTables();
-            }
-        }
-
-        function removeStaff(code) {
-            // FIXED: Using loose equality (==) to match code even if passed as string
-            const index = staffMembers.findIndex(s => s.code == code);
-            if (index > -1) {
-                const member = staffMembers[index];
-                if (confirm("Permanently remove " + member.name + "?")) {
-                    staffMembers.splice(index, 1); // Modify array in place
-                    renderStaffList();
-                    renderTables();
-                }
-            } else {
-                console.error("Staff member not found for code:", code);
             }
         }
 
@@ -538,43 +614,66 @@
             const name = document.getElementById('newItemName').value;
             const price = document.getElementById('newItemPrice').value;
             const cat = document.getElementById('newItemCategory').value;
+            
+            // Image Upload Logic
             const fileInput = document.getElementById('newItemImage');
             const file = fileInput.files[0];
             
             if(name && price) {
-                const addItem = (imgUrl) => {
-                    menuItems.push({name, category: cat, price, image: imgUrl});
-                    renderMenu();
-                    document.getElementById('newItemName').value = '';
-                    document.getElementById('newItemPrice').value = '';
-                    fileInput.value = '';
-                };
-
                 if (file) {
                     const reader = new FileReader();
-                    reader.onload = (e) => addItem(e.target.result);
+                    reader.onload = function(e) {
+                        menuItems.push({name, category: cat, price, image: e.target.result});
+                        renderMenu();
+                    };
                     reader.readAsDataURL(file);
                 } else {
-                    addItem("https://via.placeholder.com/50");
+                    menuItems.push({name, category: cat, price, image: "https://via.placeholder.com/50"});
+                    renderMenu();
                 }
+                
+                document.getElementById('newItemName').value = '';
+                document.getElementById('newItemPrice').value = '';
+                fileInput.value = '';
             }
         }
 
+        // --- QR PRINT LOGIC ---
         function printQR() {
             const tableId = document.getElementById('qrTableSelect').value;
             const imgUrl = document.getElementById('qrImage').src;
+            
             const printWindow = window.open('', '_blank');
             printWindow.document.write(`
-                <html><head><title>Print QR</title>
-                <style>body{text-align:center; font-family:sans-serif; padding:50px;} img{width:300px;}</style>
-                </head><body>
-                <h1>Table ${tableId}</h1><img src="${imgUrl}"><p>Scan to Order</p>
-                <script>window.onload = function() { window.print(); setTimeout(() => window.close(), 500); }<\/script>
-                </body></html>
+                <html>
+                <head>
+                    <title>Print Table ${tableId} QR</title>
+                    <style>
+                        body { text-align: center; font-family: sans-serif; padding: 50px; }
+                        .qr-box { border: 2px solid #333; padding: 20px; display: inline-block; border-radius: 10px; }
+                        img { width: 300px; height: 300px; }
+                        h1 { color: #E85D46; margin-bottom: 5px; }
+                        p { font-size: 1.2rem; color: #555; }
+                        .no-print { margin-top: 20px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="qr-box">
+                        <h1>Table ${tableId}</h1>
+                        <img src="${imgUrl}">
+                        <p>Scan to Order Menu</p>
+                    </div>
+                    <div class="no-print">
+                        <button onclick="window.print()" style="padding:10px 20px; font-size:1.2rem; cursor:pointer;">Print Now</button>
+                        <button onclick="window.close()" style="padding:10px 20px; font-size:1.2rem; cursor:pointer;">Close</button>
+                    </div>
+                </body>
+                </html>
             `);
             printWindow.document.close();
         }
 
+        // --- EXISTING HELPER FUNCTIONS ---
         function updateQROptions() {
             const select = document.getElementById('qrTableSelect');
             select.innerHTML = '';
@@ -595,24 +694,32 @@
                 renderTables();
             }
         }
-        function simulateCustomerArrival() {
-            const freeTable = tables.find(t => t.status === 'free');
-            if (!freeTable) { alert("No tables available!"); return; }
-            freeTable.status = 'occupied';
-            renderTables();
-            setTimeout(() => {
-                const newOrder = {
-                    id: Math.floor(Math.random() * 10000),
-                    tableId: freeTable.id,
-                    items: "Steak, Red Wine",
-                    status: 'active',
-                    kitchenStatus: 'pending',
-                    barStatus: 'pending'
-                };
-                orders.push(newOrder);
-                renderOrders(); 
-            }, 1000);
-        }
+       function simulateCustomerArrival(tableId) {
+    let table = tables.find(t => t.id === tableId);
+
+    if (!table) return;
+    if (table.status === "occupied") {
+        alert(`Table ${tableId} is already occupied.`);
+        return;
+    }
+
+    // Mark table as occupied
+    table.status = "occupied";
+
+    // Create order
+    const newOrder = {
+        id: orders.length + 1,
+        tableId: tableId,
+        items: "Customer seated — awaiting waiter",
+        kitchenStatus: "pending",
+        barStatus: "pending",
+    };
+
+    orders.push(newOrder);
+
+    renderTables();
+    renderOrders();
+}
         function assignTableWaiter(tableId, waiterName) {
             const table = tables.find(t => t.id === tableId);
             if(table) { table.waiter = waiterName; renderOrders(); }

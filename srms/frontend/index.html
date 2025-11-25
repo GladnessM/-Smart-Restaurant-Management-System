@@ -39,16 +39,21 @@
 
   <div class="header">Smart Restaurant</div>
 
-  <div class="container">
+  <form id="signupForm" >
+  <div class="container" >
     <h2>Sign Up</h2>
 
     <label for="name">Full Name</label>
-    <input id="name" placeholder="Enter your name">
+    <input id="name" name="name" required placeholder="Enter your name">
 
     <label for="email">Email</label>
-    <input id="email" placeholder="Enter your email">
+    <input id="email" name="email" type="email" required placeholder="Enter your email">
 
-    <button id="signupBtn">Continue</button>
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" required placeholder="Enter your password">
+
+    <button type="submit" id="signupBtn">Continue</button>
+    
 
     <button class="guest-btn" onclick="window.location='menu.html'">
       Continue as Guest (No Points)
@@ -56,27 +61,56 @@
 
     <a class="staff-link" href="staff_login.html">Staff Login →</a>
     <a class="login-link" href="login.html">Customer Login →</a>
-  </div>
+  </div></form>
 
   <script>
-    document.getElementById('signupBtn').onclick = () => {
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      if (!name || !email) return alert("Please enter all fields.");
+document.getElementById('signupForm').addEventListener('submit', function(e){
+    e.preventDefault(); // prevent default form submit
 
-      const userKey = "currentUser";
-      const user = { name, email, role: "customer", points: 0 };
-      localStorage.setItem(userKey, JSON.stringify(user));
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
 
-      if(!localStorage.getItem(`${email}_cart_history`)) {
-        localStorage.setItem(`${email}_cart_history`, JSON.stringify([]));
-      }
+    if(!name || !email || !password){
+        return alert('Please fill all fields');
+    }
 
-      const table = prompt("Enter table number :") || "";
-      const link = table ? `menu.html?table=${encodeURIComponent(table)}` : "menu.html";
-      window.location.href = link;
-    };
-  </script>
+    // Step 1: Send signup data to backend
+    fetch('http://localhost:8080/-Smart-Restaurant-Management-System/srms/backend/backend_system/auth/signup.php', {
+        method: 'POST',
+        headers: {'Content-Type':'application/x-www-form-urlencoded'},
+        body: new URLSearchParams({name, email, password})
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success){
+            alert('Signup successful!');
+
+            // Step 2: Prompt for table number
+            let table = prompt('Enter table number (simulate QR scan)') || '';
+
+            if(table){
+                // Step 3: Send table number to backend
+                fetch('http://localhost:8080/-Smart-Restaurant-Management-System/srms/backend/backend_system/auth/update_table.php', {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/x-www-form-urlencoded'},
+                    body: new URLSearchParams({email, table_number: table})
+                })
+                .then(()=> {
+                    // Step 4: Redirect to menu with table number
+                    window.location.href = `/-Smart-Restaurant-Management-System/srms/frontend/menu.html?table=${encodeURIComponent(table)}`;
+                });
+            } else {
+                window.location.href = '/-Smart-Restaurant-Management-System/srms/frontend/menu.html';
+            }
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(err => alert('Error connecting to server.'));
+});
+</script>
+
 
 </body>
 </html>
